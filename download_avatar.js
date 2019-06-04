@@ -22,10 +22,23 @@ function getRepoContributors(repoOwner, repoName, cb) {
 getRepoContributors("jquery", "jquery", function(err, result) {
   console.log("Errors:", err);
   JSON.parse(result).forEach(function(element){
-    console.log(element.avatar_url);
+    var path = './avatar/'+element.login+'.jpg';
+
+    console.log(path);
+    downloadImageByURL(element.avatar_url, path)
   })
 });
 
 function downloadImageByURL(url, filePath) {
-  fs.createWriteStream(filePath+'/'+url);
+  var avatar = fs.createWriteStream(filePath);
+  var req = request(url);
+
+  req.on('error', function (err) {
+       throw err;
+     })
+     .on('response', function (response) {
+       console.log('Response Status Code:', response.statusCode,
+                    'Content Type:', response.headers['content-type']);
+     })
+     .pipe(avatar);
 }
